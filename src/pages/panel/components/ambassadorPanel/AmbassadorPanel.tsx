@@ -1,4 +1,4 @@
-import { useState, useCallback, Fragment } from "react";
+import { useState, useCallback, Fragment, useMemo } from "react";
 
 import AmbassadorButton from "../../../../components/ambassadorButton/AmbassadorButton";
 
@@ -23,25 +23,36 @@ export default function AmbassadorPanel() {
     }, []),
   );
 
+  const ambassadorButtons = useMemo(() => {
+    return sortedAmbassadors.map(([key, ambassador]) => (
+      <Fragment key={key}>
+        <AmbassadorButton
+          ambassadorKey={key}
+          ambassador={ambassador}
+          onClick={() => setAmbassadorCard(key)}
+          className={styles.item}
+        />
+      </Fragment>
+    ));
+  }, [sortedAmbassadors]);
+
+  const ambassadorCardOverlay = useMemo(() => {
+    return sortedAmbassadors.map(([key, ambassador]) => (
+      <Fragment key={key}>
+        {ambassadorCard === key && (
+          <AmbassadorCardOverlay
+            ambassadorCard={{ ambassadorKey: key, ambassador }}
+            onClose={() => setAmbassadorCard(undefined)}
+          />
+        )}
+      </Fragment>
+    ));
+  }, [ambassadorCard]);
+
   return (
     <main className={styles.ambassadors}>
-      {sortedAmbassadors.map(([key, ambassador]) => (
-        <Fragment key={key}>
-          {ambassadorCard === key && (
-            <AmbassadorCardOverlay
-              ambassadorCard={{ ambassadorKey: key, ambassador }}
-              onClose={() => setAmbassadorCard(undefined)}
-            />
-          )}
-
-          <AmbassadorButton
-            ambassadorKey={key}
-            ambassador={ambassador}
-            onClick={() => setAmbassadorCard(key)}
-            className={styles.item}
-          />
-        </Fragment>
-      ))}
+      {ambassadorButtons}
+      {ambassadorCardOverlay}
     </main>
   );
 }
